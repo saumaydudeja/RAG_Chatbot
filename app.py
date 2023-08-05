@@ -95,8 +95,8 @@ async def main(message: str):
         eval_chain = cl.user_session.get("evalchain")
         eval_context = cl.user_session.get("prev_context")
         eval_ans = cl.user_session.get("prevans")
-        eval_ans = await eval_chain.arun({'query_str':eval_ans,'context_str':eval_context})
-        await cl.Message(content=eval_ans).send()
+        eval_res = await eval_chain.arun({'query_str':eval_ans,'context_str':eval_context})
+        await cl.Message(content="CORRECT" if eval_res=="YES" else "INCORRECT").send()
     
     if message == "Evaluate verbose":
         eval_chain = cl.user_session.get("evalchain")
@@ -104,8 +104,8 @@ async def main(message: str):
         eval_ans = cl.user_session.get("prevans")
         await cl.Message(content=EVAL_DESC).send()
         await cl.Message(content=ANS_EVAL_PROMPT.format(query_str = eval_ans, context_str = eval_context.page_content)).send()
-        eval_ans = await eval_chain.arun({'query_str':eval_ans,'context_str':eval_context})
-        await cl.Message(content=eval_ans).send()
+        eval_res = await eval_chain.arun({'query_str':eval_ans,'context_str':eval_context})
+        await cl.Message(content=eval_res).send()
 
     else:
         qa = cl.user_session.get("qachain") 
