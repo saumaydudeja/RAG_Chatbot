@@ -10,6 +10,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain import PromptTemplate
 from langchain.docstore.document import Document
 import chainlit as cl
+from prompt import ANS_EVAL_PROMPT as evalprompt
 
 
 WELCOME_MSG = """
@@ -77,7 +78,7 @@ async def init():
 
     eval_chain = LLMChain(
     llm=OpenAI(),
-    prompt = ANS_EVAL_PROMPT
+    prompt = evalprompt
     )
 
     msg = cl.Message(content=WELCOME_MSG)
@@ -98,12 +99,12 @@ async def main(message: str):
         eval_res = await eval_chain.arun({'query_str':eval_ans,'context_str':eval_context})
         await cl.Message(content="CORRECT" if eval_res=="YES" else "INCORRECT").send()
     
-    if message == "Evaluate verbose":
+    elif message == "Evaluate verbose":
         eval_chain = cl.user_session.get("evalchain")
         eval_context = cl.user_session.get("prev_context")
         eval_ans = cl.user_session.get("prevans")
         await cl.Message(content=EVAL_DESC).send()
-        await cl.Message(content=ANS_EVAL_PROMPT.format(query_str = eval_ans, context_str = eval_context.page_content)).send()
+        await cl.Message(content=evalprompt.format(query_str = eval_ans, context_str = eval_context.page_content)).send()
         eval_res = await eval_chain.arun({'query_str':eval_ans,'context_str':eval_context})
         await cl.Message(content=eval_res).send()
 
@@ -118,8 +119,9 @@ async def main(message: str):
         cl.user_session.set("prev_context",full_context)
         cl.user_session.set("prev_ques",message)
         res = await qa.arun({"query": message},callbacks=[cl.AsyncLangchainCallbackHandler()])
-        await cl.Message(content=res).send()
         cl.user_session.set("prevans",res)
+        await cl.Message(content=res).send()
+        
 
 
 
