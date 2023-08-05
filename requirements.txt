@@ -1,0 +1,7 @@
+chainlit
+langchain
+unstructured
+openai
+cohere
+tiktoken
+faiss-cpu
