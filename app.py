@@ -94,11 +94,10 @@ async def main(message: str):
         eval_chain = cl.user_session.get("evalchain")
         eval_context = cl.user_session.get("prev_context")
         eval_ans = cl.user_session.get("prevans")
-        await cl.Message(content=ANS_EVAL_PROMPT.format(query_str = eval_ans, context_str = eval_context.page_content)).send()
         eval_ans = await eval_chain.arun({'query_str':eval_ans,'context_str':eval_context})
-        await cl.Message(content=eval_ans).send()
+        await cl.Message(content="CORRECT" if eval_ans=="YES" else "INCORRECT").send()
     
-    if message == "Eval verbose":
+    if message == "Evaluate verbose":
         eval_chain = cl.user_session.get("evalchain")
         eval_context = cl.user_session.get("prev_context")
         eval_ans = cl.user_session.get("prevans")
@@ -117,9 +116,6 @@ async def main(message: str):
             full_context.page_content = full_context.page_content+ entry.page_content
         cl.user_session.set("prev_context",full_context)
         cl.user_session.set("prev_ques",message)
-        
-        # await cl.Message(content=f"retrieved context: {full_context.page_content}").send()
-
         res = await qa.arun({"query": message},callbacks=[cl.AsyncLangchainCallbackHandler()])
         await cl.Message(content=res).send()
         cl.user_session.set("prevans",res)
