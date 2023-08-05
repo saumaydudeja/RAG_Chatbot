@@ -96,7 +96,7 @@ async def main(message: str):
         eval_context = cl.user_session.get("prev_context")
         eval_ans = cl.user_session.get("prevans")
         eval_ans = await eval_chain.arun({'query_str':eval_ans,'context_str':eval_context})
-        await cl.Message(content="CORRECT" if eval_ans=="YES" else "INCORRECT").send()
+        await cl.Message(content=eval_ans).send()
     
     if message == "Evaluate verbose":
         eval_chain = cl.user_session.get("evalchain")
